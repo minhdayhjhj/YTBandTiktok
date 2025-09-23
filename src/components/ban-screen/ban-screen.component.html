@@ -1,0 +1,20 @@
+<div class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 text-center p-4 animate-fade-in">
+  <div class="max-w-lg w-full bg-gradient-to-br from-red-900/50 via-black/50 to-red-900/50 border-2 border-red-500 rounded-2xl shadow-2xl shadow-red-500/30 p-8 transform-style-3d transform rotate-x-12">
+    <div class="text-7xl text-red-500 animate-pulse transform translate-z-10">
+      <i class="fas fa-user-lock"></i>
+    </div>
+    <h2 class="text-4xl font-bold text-red-400 mt-4">ACCESS DENIED</h2>
+    <p class="text-lg text-gray-300 mt-2">
+      Developer tools or right-click usage has been detected.
+      <br/>
+      Your access is temporarily suspended.
+    </p>
+    <div class="mt-6">
+      <p class="text-xl text-gray-400">Time remaining:</p>
+      <p class="text-7xl font-mono font-bold text-white tracking-widest bg-black/50 border border-red-500/50 rounded-lg py-4 mt-2">
+        {{ formatTime(timeRemaining()) }}
+      </p>
+    </div>
+    <p class="text-sm text-gray-500 mt-6">Please wait for the timer to expire. Reloading the page will not bypass this restriction.</p>
+  </div>
+</div>
