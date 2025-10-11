@@ -1,0 +1,20 @@
+{
+  "username": "your_tiktok_username",
+  "password": "your_tiktok_password",
+  "caption": "Default caption for videos",
+  "hashtags": "viral, trending, fyp, amazing",
+  "settings": {
+    "use_proxy": false,
+    "proxy_url": "http://proxy-server:port",
+    "random_ua": true,
+    "openai_key": "sk-your-openai-api-key-here",
+    "batch_delay": 30,
+    "max_retries": 3,
+    "auto_caption": false
+  },
+  "schedule": {
+    "enabled": true,
+    "default_time": "09:00",
+    "timezone": "UTC"
+  }
+}
