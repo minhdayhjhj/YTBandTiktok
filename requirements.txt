@@ -1,0 +1,7 @@
+selenium==4.15.2
+webdriver-manager==4.0.1
+requests==2.31.0
+python-dotenv==1.0.0
+click==8.1.7
+Pillow==10.1.0
+moviepy==1.0.3
