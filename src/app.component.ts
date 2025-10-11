@@ -10,7 +10,7 @@ import { SecurityService } from './services/security.service';
 import { AudioService } from './services/audio.service';
 
 import { VideoInfo } from './models/youtube.model';
-import { TiktokVideoInfo } from './models/tiktok.model';
+import { TiktokVideoInfo, VideoQuality } from './models/tiktok.model';
 
 import { EffectsComponent } from './components/effects/effects.component';
 import { BanScreenComponent } from './components/ban-screen/ban-screen.component';
@@ -39,14 +39,14 @@ declare const process: any; // Assume process.env is available
           </button>
         </div>
         
-        <div class="w-full max-w-4xl p-6 border border-green-600 bg-black bg-opacity-70 shadow-lg shadow-green-500/20">
+        <div class="w-full max-w-6xl p-6 border border-green-600 bg-black bg-opacity-70 shadow-lg shadow-green-500/20">
           <header class="text-center mb-6">
-            <h1 class="text-4xl font-bold animate-flicker">VIRAL-SCAN v1.5</h1>
-            <p class="text-green-300">Analyzing trend vectors across digital ecosystems...</p>
+            <h1 class="text-4xl font-bold animate-flicker">TIKTOK DOWNLOADER v2.0</h1>
+            <p class="text-green-300">Download TikTok videos with high quality and viral analysis...</p>
           </header>
 
           <section class="mb-6">
-            <div class="flex space-x-2 mb-2">
+            <div class="flex space-x-2 mb-4">
               <button 
                 (click)="setPlatform('youtube')" 
                 class="px-4 py-2 border border-green-700 bg-gray-900 text-green-500 hover:bg-green-800 transition-colors"
@@ -64,6 +64,11 @@ declare const process: any; // Assume process.env is available
                 [class.border-green-400]="platform() === 'tiktok'"
                 [class.font-bold]="platform() === 'tiktok'">
                 > TikTok
+              </button>
+              <button 
+                (click)="toggleDownloadHistory()" 
+                class="px-4 py-2 border border-blue-700 bg-gray-900 text-blue-500 hover:bg-blue-800 transition-colors">
+                > Download History
               </button>
             </div>
             <div class="flex">
@@ -163,11 +168,13 @@ export class AppComponent implements OnInit {
   audioService = inject(AudioService);
 
   videoUrl = signal('');
-  platform = signal<Platform>('youtube');
+  platform = signal<Platform>('tiktok');
   isLoading = signal(false);
   error = signal<string | null>(null);
   analysis = signal<string | null>(null);
   videoData = signal<VideoData | null>(null);
+  showDownloadHistory = signal(false);
+  selectedQuality = signal<VideoQuality>('high');
 
   isBanned = this.securityService.isBanned;
 
@@ -283,5 +290,32 @@ export class AppComponent implements OnInit {
 
   formatNumber(num: number): string {
     return num ? num.toLocaleString('en-US') : 'N/A';
+  }
+
+  async downloadVideo() {
+    const data = this.videoData();
+    if (!data || this.platform() !== 'tiktok') return;
+    
+    try {
+      await this.tiktokService.downloadVideo(data as TiktokVideoInfo, this.selectedQuality());
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Download failed');
+    }
+  }
+
+  toggleDownloadHistory() {
+    this.showDownloadHistory.update(show => !show);
+  }
+
+  setQuality(quality: VideoQuality) {
+    this.selectedQuality.set(quality);
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 }

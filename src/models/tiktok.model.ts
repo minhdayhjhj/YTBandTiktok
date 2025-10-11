@@ -18,6 +18,21 @@ export interface TiktokVideoInfo {
   };
 }
 
+export interface DownloadProgress {
+  percentage: number;
+  loaded: number;
+  total: number;
+}
+
+export type VideoQuality = 'low' | 'medium' | 'high';
+
+export interface DownloadHistoryItem {
+  id: string;
+  video: TiktokVideoInfo;
+  downloadedAt: Date;
+  fileSize?: number;
+}
+
 // Raw API response structure for type assertion
 export interface TikWmApiResponse {
   code: number;
