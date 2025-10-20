@@ -1,0 +1,318 @@
+<div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-white mb-4">
+        🎬 Video Reupload Tool Pro
+      </h1>
+      <p class="text-xl text-gray-300">
+        Công cụ reup video nâng cao với nhiều chức năng
+      </p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="flex justify-center mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+               [class]="currentStep >= 1 ? 'bg-green-500' : 'bg-gray-500'">
+            1
+          </div>
+          <span class="ml-2 text-white font-medium">Chọn Video</span>
+        </div>
+        <div class="w-16 h-1 bg-gray-500"></div>
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+               [class]="currentStep >= 2 ? 'bg-green-500' : 'bg-gray-500'">
+            2
+          </div>
+          <span class="ml-2 text-white font-medium">Cấu Hình</span>
+        </div>
+        <div class="w-16 h-1 bg-gray-500"></div>
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+               [class]="currentStep >= 3 ? 'bg-green-500' : 'bg-gray-500'">
+            3
+          </div>
+          <span class="ml-2 text-white font-medium">Hoàn Thành</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-white">{{ stats.totalVideos }}</div>
+        <div class="text-gray-300">Tổng Video</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-green-400">{{ stats.successfulUploads }}</div>
+        <div class="text-gray-300">Upload Thành Công</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-blue-400">{{ stats.totalViews }}</div>
+        <div class="text-gray-300">Tổng Lượt Xem</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-pink-400">{{ stats.totalLikes }}</div>
+        <div class="text-gray-300">Tổng Lượt Thích</div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Panel - Video Management -->
+      <div class="lg:col-span-2">
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+          <h2 class="text-2xl font-bold text-white mb-6">Quản Lý Video</h2>
+          
+          <!-- Upload Section -->
+          <div class="mb-6">
+            <div class="border-2 border-dashed border-gray-400 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+              <input type="file" 
+                     id="videoUpload" 
+                     multiple 
+                     accept="video/*" 
+                     (change)="onFileSelected($event)"
+                     class="hidden">
+              <label for="videoUpload" class="cursor-pointer">
+                <div class="text-6xl mb-4">📁</div>
+                <div class="text-xl text-white mb-2">Kéo thả video vào đây</div>
+                <div class="text-gray-300">hoặc click để chọn file</div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Video List -->
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-semibold text-white">Danh Sách Video</h3>
+              <div class="space-x-2">
+                <button (click)="selectAllVideos()" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                  Chọn Tất Cả
+                </button>
+                <button (click)="clearSelection()" 
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                  Bỏ Chọn
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+              <div *ngFor="let video of videoFiles" 
+                   class="flex items-center space-x-4 p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                <input type="checkbox" 
+                       [checked]="selectedVideos.includes(video.id)"
+                       (change)="toggleVideoSelection(video.id)"
+                       class="w-5 h-5 text-blue-600">
+                
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-lg">{{ getStatusIcon(video.status) }}</span>
+                    <span class="text-white font-medium">{{ video.name }}</span>
+                    <span class="text-sm text-gray-400">({{ formatFileSize(video.size) }})</span>
+                  </div>
+                  
+                  <div class="flex items-center space-x-4 mt-2">
+                    <span class="text-sm text-gray-400">{{ video.platform }}</span>
+                    <span class="text-sm text-gray-400">{{ video.uploadDate | date:'short' }}</span>
+                    <span [class]="getStatusColor(video.status)" class="text-sm font-medium">
+                      {{ video.status | titlecase }}
+                    </span>
+                  </div>
+
+                  <!-- Progress Bar -->
+                  <div *ngIf="video.status === 'processing'" class="mt-2">
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                      <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                           [style.width.%]="video.progress"></div>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-1">{{ video.progress }}%</div>
+                  </div>
+                </div>
+
+                <button (click)="removeVideoFile(video.id)" 
+                        class="text-red-400 hover:text-red-300 transition-colors">
+                  🗑️
+                </button>
+              </div>
+
+              <div *ngIf="videoFiles.length === 0" class="text-center py-8 text-gray-400">
+                Chưa có video nào được tải lên
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel - Settings & Actions -->
+      <div class="space-y-6">
+        <!-- Platform Selection -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+          <h3 class="text-xl font-bold text-white mb-4">Chọn Nền Tảng</h3>
+          <div class="space-y-3">
+            <div *ngFor="let source of videoSources" 
+                 class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+              <span class="text-2xl">{{ source.icon }}</span>
+              <div class="flex-1">
+                <div class="text-white font-medium">{{ source.name }}</div>
+                <div class="text-sm text-gray-400">
+                  {{ source.supported ? 'Được hỗ trợ' : 'Chưa hỗ trợ' }}
+                </div>
+              </div>
+              <div class="w-4 h-4 rounded-full" 
+                   [style.background-color]="source.color"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Settings -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+          <h3 class="text-xl font-bold text-white mb-4">Cài Đặt Nhanh</h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-white">Tự động tải xuống</span>
+              <input type="checkbox" 
+                     [(ngModel)]="settings.autoDownload"
+                     class="w-5 h-5 text-blue-600">
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-white">Tự động xử lý</span>
+              <input type="checkbox" 
+                     [(ngModel)]="settings.autoProcess"
+                     class="w-5 h-5 text-blue-600">
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-white">Thêm watermark</span>
+              <input type="checkbox" 
+                     [(ngModel)]="settings.addWatermark"
+                     class="w-5 h-5 text-blue-600">
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-white">Lên lịch upload</span>
+              <input type="checkbox" 
+                     [(ngModel)]="settings.scheduleUpload"
+                     class="w-5 h-5 text-blue-600">
+            </div>
+          </div>
+
+          <button (click)="showAdvancedSettings = !showAdvancedSettings" 
+                  class="w-full mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+            {{ showAdvancedSettings ? 'Ẩn' : 'Hiện' }} Cài Đặt Nâng Cao
+          </button>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div *ngIf="showAdvancedSettings" class="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+          <h3 class="text-xl font-bold text-white mb-4">Cài Đặt Nâng Cao</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-white mb-2">Chất lượng video</label>
+              <select [(ngModel)]="settings.quality" 
+                      class="w-full p-2 bg-white/10 text-white rounded-lg border border-gray-600">
+                <option value="low">Thấp</option>
+                <option value="medium">Trung bình</option>
+                <option value="high">Cao</option>
+                <option value="ultra">Siêu cao</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-white mb-2">Độ phân giải mục tiêu</label>
+              <select [(ngModel)]="settings.targetResolution" 
+                      class="w-full p-2 bg-white/10 text-white rounded-lg border border-gray-600">
+                <option value="1080x1920">1080x1920 (TikTok)</option>
+                <option value="1920x1080">1920x1080 (YouTube)</option>
+                <option value="1080x1080">1080x1080 (Instagram)</option>
+                <option value="720x1280">720x1280 (Mobile)</option>
+              </select>
+            </div>
+
+            <div *ngIf="settings.addWatermark">
+              <label class="block text-white mb-2">Text watermark</label>
+              <input type="text" 
+                     [(ngModel)]="settings.watermarkText"
+                     placeholder="Nhập text watermark"
+                     class="w-full p-2 bg-white/10 text-white rounded-lg border border-gray-600">
+            </div>
+
+            <div>
+              <label class="block text-white mb-2">Số lần thử lại tối đa</label>
+              <input type="number" 
+                     [(ngModel)]="settings.maxRetries"
+                     min="1" max="10"
+                     class="w-full p-2 bg-white/10 text-white rounded-lg border border-gray-600">
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+          <h3 class="text-xl font-bold text-white mb-4">Hành Động</h3>
+          <div class="space-y-3">
+            <button (click)="createReuploadTask()" 
+                    [disabled]="selectedVideos.length === 0 || isProcessing"
+                    class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+              {{ isProcessing ? 'Đang xử lý...' : 'Bắt Đầu Reup' }}
+            </button>
+
+            <button (click)="saveSettings()" 
+                    class="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
+              Lưu Cài Đặt
+            </button>
+
+            <button (click)="resetTool()" 
+                    class="w-full px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors">
+              Reset Tool
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Task Display -->
+    <div *ngIf="activeTask" class="mt-8 bg-white/10 backdrop-blur-lg rounded-xl p-6">
+      <h3 class="text-xl font-bold text-white mb-4">Đang Xử Lý</h3>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-white">Tiến độ: {{ activeTask.progress }}%</span>
+          <span class="text-gray-400">{{ activeTask.status | titlecase }}</span>
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-3">
+          <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-300" 
+               [style.width.%]="activeTask.progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Display -->
+    <div *ngIf="currentStep === 3" class="mt-8 bg-white/10 backdrop-blur-lg rounded-xl p-6">
+      <h3 class="text-xl font-bold text-white mb-4">Kết Quả Reup</h3>
+      <div class="space-y-4">
+        <div *ngFor="let task of reuploadTasks" 
+             class="p-4 bg-white/5 rounded-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-white font-medium">Task #{{ task.id }}</span>
+            <span [class]="getStatusColor(task.status)" class="font-medium">
+              {{ getStatusIcon(task.status) }} {{ task.status | titlecase }}
+            </span>
+          </div>
+          
+          <div *ngIf="task.results.length > 0" class="space-y-2">
+            <div *ngFor="let result of task.results" 
+                 class="flex items-center justify-between text-sm">
+              <span class="text-gray-300">{{ result.platform | titlecase }}</span>
+              <div class="flex items-center space-x-4">
+                <span class="text-green-400">👁️ {{ result.views }}</span>
+                <span class="text-pink-400">❤️ {{ result.likes }}</span>
+                <a [href]="result.url" target="_blank" 
+                   class="text-blue-400 hover:text-blue-300">Xem</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
